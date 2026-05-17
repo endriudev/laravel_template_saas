@@ -19,11 +19,6 @@ chmod -R 775 storage bootstrap/cache
 # ---- Supervisor log dir ----
 mkdir -p /var/log/supervisor
 
-# ---- .env ----
-if [ ! -f .env ]; then
-    cp .env.example .env
-fi
-
 # ---- APP_KEY ----
 if [ -z "$APP_KEY" ] && ! grep -q "APP_KEY=base64:" .env; then
     php artisan key:generate --force

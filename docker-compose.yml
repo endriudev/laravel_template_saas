@@ -1,4 +1,4 @@
-name: reactpix
+name: laravel_template_saas
 
 services:
   app:

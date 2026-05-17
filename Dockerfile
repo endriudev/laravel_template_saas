@@ -10,21 +10,7 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 # auth.json is mounted as a BuildKit secret (never stored in image layers)
 RUN --mount=type=secret,id=composer_auth,target=/var/www/html/auth.json,required=false \
-    composer install --no-dev --no-scripts --no-autoloader --prefer-dist --ignore-platform-reqs
-
-# ---- Build assets ----
-FROM node:22-alpine AS assets
-
-WORKDIR /app
-
-COPY package.json package-lock.json* ./
-RUN npm install
-
-COPY vite.config.js ./
-COPY resources ./resources
-COPY app ./app
-COPY --from=composer-deps /var/www/html/vendor ./vendor
-RUN npm run build
+    composer install --no-dev --no-scripts --prefer-dist --ignore-platform-reqs
 
 # ---- Production image ----
 FROM php:8.4-fpm-alpine
@@ -36,9 +22,15 @@ LABEL org.opencontainers.image.source=${IMAGE_SOURCE}
 # DB_DRIVERS:  space-separated (mysql pgsql sqlite)
 # EXTRA_PECL:  space-separated PECL extensions (redis imagick memcached)
 # EXTRA_EXT:   space-separated PHP extensions (gmp soap sockets calendar)
-ARG DB_DRIVERS="mysql"
+ARG DB_DRIVERS="pgsql"
 ARG EXTRA_PECL="redis"
 ARG EXTRA_EXT=""
+ARG VITE_APP_NAME="Laravel"
+ARG VITE_PUSHER_APP_KEY=""
+ARG VITE_PUSHER_APP_CLUSTER="mt1"
+ARG VITE_PUSHER_HOST=""
+ARG VITE_PUSHER_PORT="6001"
+ARG VITE_PUSHER_SCHEME="http"
 
 RUN set -eux; \
     # ---- Base packages (always needed for Laravel + Filament) ----
@@ -132,9 +124,6 @@ COPY . .
 # Copy vendor from composer stage (clean, no-dev)
 COPY --from=composer-deps /var/www/html/vendor ./vendor
 
-# Copy built assets from node stage
-COPY --from=assets /app/public/build ./public/build
-
 # Finish composer (generate autoload with app code present)
 RUN composer dump-autoload --optimize --classmap-authoritative --no-dev \
     && composer run-script post-autoload-dump
@@ -147,12 +136,24 @@ RUN chown -R www-data:www-data storage bootstrap/cache database \
 COPY docker/php/php-prod.ini /usr/local/etc/php/conf.d/99-prod.ini
 COPY docker/php/www-prod.conf /usr/local/etc/php-fpm.d/www.conf
 
-# Pre-cache static assets at build time (icons + filament components don't depend on runtime env)
-RUN cp .env.example .env \
-    && php artisan key:generate --force \
-    && php artisan icons:cache \
-    && php artisan filament:cache-components \
-    && rm .env
+# Build frontend assets. Node is installed temporarily, used, and removed in
+# the same layer to keep the image lean. Public Vite variables are passed in as
+# build args and exported only for this step so the generated bundle matches the
+# target environment without copying the full .env file into the image.
+RUN set -eux; \
+    export VITE_APP_NAME="$VITE_APP_NAME"; \
+    export VITE_PUSHER_APP_KEY="$VITE_PUSHER_APP_KEY"; \
+    export VITE_PUSHER_APP_CLUSTER="$VITE_PUSHER_APP_CLUSTER"; \
+    export VITE_PUSHER_HOST="$VITE_PUSHER_HOST"; \
+    export VITE_PUSHER_PORT="$VITE_PUSHER_PORT"; \
+    export VITE_PUSHER_SCHEME="$VITE_PUSHER_SCHEME"; \
+    apk add --no-cache --virtual .node-deps nodejs npm; \
+    npm ci; \
+    npm run build; \
+    php artisan icons:cache; \
+    php artisan filament:cache-components; \
+    rm -rf node_modules /root/.npm; \
+    apk del .node-deps
 
 # Nginx config
 COPY docker/nginx/nginx-prod.conf /etc/nginx/nginx.conf
@@ -164,6 +165,7 @@ COPY docker/supervisor/supervisord-prod.conf /etc/supervisor/conf.d/supervisord.
 
 # Entrypoint
 COPY docker/entrypoint-prod.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 80
 
