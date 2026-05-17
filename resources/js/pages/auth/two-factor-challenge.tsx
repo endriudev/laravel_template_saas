@@ -1,6 +1,6 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, setLayoutProps } from '@inertiajs/react';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,6 @@ import {
     InputOTPSlot,
 } from '@/components/ui/input-otp';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
-import AuthLayout from '@/layouts/auth-layout';
 import { store } from '@/routes/two-factor/login';
 
 export default function TwoFactorChallenge() {
@@ -39,6 +38,13 @@ export default function TwoFactorChallenge() {
         };
     }, [showRecoveryInput]);
 
+    useEffect(() => {
+        setLayoutProps({
+            title: authConfigContent.title,
+            description: authConfigContent.description,
+        });
+    }, [authConfigContent]);
+
     const toggleRecoveryMode = (clearErrors: () => void): void => {
         setShowRecoveryInput(!showRecoveryInput);
         clearErrors();
@@ -46,10 +52,7 @@ export default function TwoFactorChallenge() {
     };
 
     return (
-        <AuthLayout
-            title={authConfigContent.title}
-            description={authConfigContent.description}
-        >
+        <>
             <Head title="Two-factor authentication" />
 
             <div className="space-y-6">
@@ -126,6 +129,12 @@ export default function TwoFactorChallenge() {
                     )}
                 </Form>
             </div>
-        </AuthLayout>
+        </>
     );
 }
+
+TwoFactorChallenge.layout = {
+    title: 'Authentication code',
+    description:
+        'Enter the authentication code provided by your authenticator application.',
+};
