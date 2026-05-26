@@ -24,6 +24,9 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/sail (SAIL) - v1
 - pestphp/pest (PEST) - v4
 - phpunit/phpunit (PHPUNIT) - v12
+- rector/rector (RECTOR) - v2
+- lorisleiva/laravel-actions (LARAVEL_ACTIONS) - v2
+- nunomaduro/essentials (ESSENTIALS) - v1
 - @inertiajs/react (INERTIA_REACT) - v3
 - react (REACT) - v19
 - tailwindcss (TAILWINDCSS) - v4
@@ -453,5 +456,6 @@ livewire(ListUsers::class)
 - Existing Settings controllers are legacy multi-method controllers and can be migrated gradually.
 - Use `app/Integrations/{Provider}` for external API clients/adapters. Do not put direct external HTTP calls in Services, Controllers, Jobs, or Filament actions.
 - Use `app/Actions/{Domain}` for reusable application behavior. New reusable Actions should use `Lorisleiva\Actions\Concerns\AsAction`.
+- Essentials defaults are part of the template: respect `config/essentials.php`, the opinionated `pint.json`, and `rector.php` unless the user explicitly asks to change them.
 - Keep HTTP/Inertia presentation in invokable controllers unless an Action is intentionally used as a controller via `asController`.
 - Laravel Boost guidelines remain the baseline; project conventions only add local decisions.

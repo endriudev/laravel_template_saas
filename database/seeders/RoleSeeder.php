@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Enums\RolesEnum;
@@ -17,8 +19,8 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         $adminRole = Role::create(['name' => RolesEnum::ADMIN->value]);
-        $userRole = Role::create(['name' => RolesEnum::USER->value]);
-        $employeeRole = Role::create(['name' => RolesEnum::EMPLOYEE->value]);
+        Role::create(['name' => RolesEnum::USER->value]);
+        Role::create(['name' => RolesEnum::EMPLOYEE->value]);
 
         $releasePurchasePermission = Permission::create(['name' => PermissionsEnum::ReleasePurchase->value]);
         // $affiliateWithdrawal = Permission::create(['name' => PermissionsEnum::AffiliateWithdrawal->value]);

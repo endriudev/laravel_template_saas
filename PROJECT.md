@@ -10,6 +10,7 @@ Este projeto e um starter SaaS Laravel usado com agentes multiambiente. Laravel 
 - Filament 5 e Livewire 4.
 - Pest 4 para testes e Laravel Pint para formatacao PHP.
 - `lorisleiva/laravel-actions` para Actions reutilizaveis e multi-contexto.
+- `nunomaduro/essentials` para defaults mais estritos: strict models, datas imutaveis, safe console, prevent stray requests em testes e Pint opinativo.
 
 ## Ambiente Local
 
@@ -50,5 +51,8 @@ Este projeto e um starter SaaS Laravel usado com agentes multiambiente. Laravel 
 - Toda mudanca de comportamento deve ter teste Pest.
 - Rode o menor conjunto de testes suficiente durante desenvolvimento.
 - Para PHP alterado, rode Pint no container antes de finalizar.
+- `config/essentials.php` faz parte do template e deve ser tratado como fonte de defaults do framework.
+- Mantenha os defaults do Essentials habilitados salvo motivo explicito: strict models, auto eager loading, immutable dates, safe console, fake sleep, prevent stray requests e force HTTPS somente em production.
+- O `pint.json` e o `rector.php` seguem os presets do Essentials; espere `declare(strict_types=1)`, classes finais por padrao, comparacoes estritas, imports ordenados, funcoes `mb_*` e refactors conservadores orientados a tipos/qualidade.
 - Respostas para o usuario devem ser em pt-BR, concisas por padrao.
 - Comentarios de codigo devem ser minimos e em ingles quando forem realmente necessarios.
