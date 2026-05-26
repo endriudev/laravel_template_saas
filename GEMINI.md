@@ -24,7 +24,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/sail (SAIL) - v1
 - pestphp/pest (PEST) - v4
 - phpunit/phpunit (PHPUNIT) - v12
-- \@inertiajs/react (INERTIA_REACT) - v2
+- \@inertiajs/react (INERTIA_REACT) - v3
 - react (REACT) - v19
 - tailwindcss (TAILWINDCSS) - v4
 - \@laravel/vite-plugin-wayfinder (WAYFINDER_VITE) - v0
@@ -443,3 +443,15 @@ livewire(ListUsers::class)
   - `$view`: `protected string` (not `protected static string`) on `Page` and `Widget` classes
 
 </laravel-boost-guidelines>
+
+## Project Conventions
+
+- Read `PROJECT.md` for local project conventions before changing architecture, integrations, Filament, or agent configuration.
+- Run PHP, Composer, Artisan, Pint, and tests through Docker Compose: `docker compose exec app ...` or `docker compose exec -T app composer ...`.
+- Use **invokable controllers** for new HTTP actions. Group them by domain: `App\Http\Controllers\{Domain}\{Action}Controller`.
+- Register routes by controller class: `Route::get('/courses/{course}', ShowCourseController::class)->name('courses.show');`.
+- Existing Settings controllers are legacy multi-method controllers and can be migrated gradually.
+- Use `app/Integrations/{Provider}` for external API clients/adapters. Do not put direct external HTTP calls in Services, Controllers, Jobs, or Filament actions.
+- Use `app/Actions/{Domain}` for reusable application behavior. New reusable Actions should use `Lorisleiva\Actions\Concerns\AsAction`.
+- Keep HTTP/Inertia presentation in invokable controllers unless an Action is intentionally used as a controller via `asController`.
+- Laravel Boost guidelines remain the baseline; project conventions only add local decisions.

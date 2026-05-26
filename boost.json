@@ -9,6 +9,7 @@
     "guidelines": true,
     "herd_mcp": false,
     "mcp": true,
+    "nightwatch": false,
     "nightwatch_mcp": false,
     "packages": [
         "filament/filament",
@@ -22,7 +23,6 @@
         "pest-testing",
         "inertia-react-development",
         "tailwindcss-development",
-        "laravel-permission-development",
-        "laravel-specialist"
+        "laravel-permission-development"
     ]
 }

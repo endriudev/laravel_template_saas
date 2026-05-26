@@ -24,7 +24,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/sail (SAIL) - v1
 - pestphp/pest (PEST) - v4
 - phpunit/phpunit (PHPUNIT) - v12
-- @inertiajs/react (INERTIA_REACT) - v2
+- @inertiajs/react (INERTIA_REACT) - v3
 - react (REACT) - v19
 - tailwindcss (TAILWINDCSS) - v4
 - @laravel/vite-plugin-wayfinder (WAYFINDER_VITE) - v0
@@ -444,13 +444,14 @@ livewire(ListUsers::class)
 
 </laravel-boost-guidelines>
 
-## Controllers & Actions Pattern
+## Project Conventions
 
-- Use **Invokable Controllers** (single-action, `__invoke`) para todas as ações. Cada controller faz apenas uma coisa.
-- Organize controllers em subpastas por domínio: `App\Http\Controllers\{Domain}\{Action}Controller`
-- Exemplos:
-  - `App\Http\Controllers\Course\ShowLessonController` → `__invoke(Service $service, Lesson $lesson)`
-  - `App\Http\Controllers\Dashboard\ShowDashboardController` → `__invoke()`
-- Use **Actions** (`app/Actions/`) para lógica reutilizável em mais de um lugar (ex: `CompletePurchaseAction`) Na actions, voce decide se usa como handle ou invoke.
-- Nas rotas, registre assim: `Route::get('/courses/{service}', ShowCourseController::class)->name('courses.show');`
-- Os controllers de Settings existentes são legado (multi-method) e serão migrados futuramente.
+- Read `PROJECT.md` for local project conventions before changing architecture, integrations, Filament, or agent configuration.
+- Run PHP, Composer, Artisan, Pint, and tests through Docker Compose: `docker compose exec app ...` or `docker compose exec -T app composer ...`.
+- Use **invokable controllers** for new HTTP actions. Group them by domain: `App\Http\Controllers\{Domain}\{Action}Controller`.
+- Register routes by controller class: `Route::get('/courses/{course}', ShowCourseController::class)->name('courses.show');`.
+- Existing Settings controllers are legacy multi-method controllers and can be migrated gradually.
+- Use `app/Integrations/{Provider}` for external API clients/adapters. Do not put direct external HTTP calls in Services, Controllers, Jobs, or Filament actions.
+- Use `app/Actions/{Domain}` for reusable application behavior. New reusable Actions should use `Lorisleiva\Actions\Concerns\AsAction`.
+- Keep HTTP/Inertia presentation in invokable controllers unless an Action is intentionally used as a controller via `asController`.
+- Laravel Boost guidelines remain the baseline; project conventions only add local decisions.
